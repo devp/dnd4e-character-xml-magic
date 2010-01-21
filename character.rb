@@ -89,11 +89,11 @@ class DNDCharacter
         power_name = el.attributes['name'].value
         power_kind = el.css_clean_all('specific').join(" ")
 
-        stats = el.css('Weapon').select{|w| 
-          w.attributes['name'].value != 'Unarmed' && !w.css_clean_all('AttackBonus').empty?
-        }.map do |weapon|
-          damage_desc = weapon.css_clean_all('DamageType').join(" ")
-          "[%s] +%s vs %s; damage: %s" % [weapon.attributes['name'].value, weapon.css_clean_first('AttackBonus'), weapon.css_clean_first('Defense'), weapon.css_clean_first('Damage'), damage_desc]
+        weapon = el.css('Weapon').sort_by{|w| w.css_clean_first('AttackBonus').to_i}.last # best weapon
+        stats = if weapon
+          "[%s] +%s vs %s; %s %s damage" % [weapon.attributes['name'].value, weapon.css_clean_first('AttackBonus'), weapon.css_clean_first('Defense'), weapon.css_clean_first('Damage'), weapon.css_clean_all('DamageType').join(" ")]
+        else
+          nil
         end
 
         # sometimes multiple elements exist
