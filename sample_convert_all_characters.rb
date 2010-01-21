@@ -21,10 +21,10 @@ Dir["*.dnd4e"].each do |fn|
   c.ddi_webservice = @ddi unless @ddi.session == :ignore  
   str = ""
   str += c.to_character_card
-  str += c.to_power_cards
-  str += c.to_item_cards
   str += c.to_features_card
   str += c.to_skill_card
+  str += c.to_power_cards
+  str += c.to_item_cards
   str = File.read('output-template.tmpl').sub('CONTENT', str)
   new_fn = fn.sub('.dnd4e', '.html')
   File.open(new_fn, 'w'){|f| f << str}
