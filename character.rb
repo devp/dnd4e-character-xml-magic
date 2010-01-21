@@ -163,7 +163,7 @@ class DNDCharacter
       info = if p[:url] && @ddi_webservice
         @ddi_webservice.get_detail_content(p[:url])
       else
-        p[:url]
+        "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
       end
       
       "<h1 class='magicitem'>#{p[:name]}</h1>" + info
@@ -175,7 +175,7 @@ class DNDCharacter
       info = if (p[:url] && @ddi_webservice)
         @ddi_webservice.get_detail_content(p[:url])
       else
-        p[:url].to_s
+        "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
       end
       
       if p[:kind] =~ /daily/i
@@ -186,7 +186,7 @@ class DNDCharacter
         h1class = 'atwillpower'
       end
       
-      "<h1 class='#{h1class}'>#{p[:name]} (#{p[:kind]})</h1><p class='flavor'><b>#{p[:stats]}</b>" + info
+      "<h1 class='#{h1class}'>#{p[:name]} <span class=smaller>(#{p[:kind]}) #{p[:stats]}</span></h1>" + info
     end.join("<br/>")
   end
 end

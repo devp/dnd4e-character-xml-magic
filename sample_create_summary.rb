@@ -8,5 +8,5 @@ Dir["*.dnd4e"].each do |fn|
   str += c.to_character_card
 end
 str = File.read('output-template.tmpl').sub('CONTENT', str)
-File.open('pc_summary.html','w'){|f| f << str}
+File.open('dnd_party.html','w'){|f| f << str}
 puts "Output to dnd_party.html"
