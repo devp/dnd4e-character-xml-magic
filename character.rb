@@ -144,8 +144,9 @@ class DNDCharacter
     <<-CARD
     <h1 class="player"> Skills </h1>
     <p class="flavor">
-    #{self.skills.map{|sk| "<b>%s</b> (%s)" % sk}.join(" ")}
+    #{self.skills.keys.sort.map{|name| "<b>%s</b> (%s)" % [name, skills[name]]}.join(" ")}
     </p>
+    <p></p>
     CARD
   end
   
@@ -155,38 +156,44 @@ class DNDCharacter
     <p class="flavor">
     #{self.features.map{|sk| "<b>%s</b> %s<br/>" % sk}.join(" ")}
     </p>
+    <p></p>
     CARD
   end
       
   def to_item_cards
     magic_items.map do |p|
-      info = if p[:url] && @ddi_webservice
-        @ddi_webservice.get_detail_content(p[:url])
+      h1 = "<h1 class='magicitem'>#{p[:name]}</h1>"
+
+      if p[:url] && @ddi_webservice
+        el = @ddi_webservice.get_detail(p[:url])
+        el.css('h1').first.replace( Nokogiri::HTML.fragment(h1) )
+        el.inner_html
       else
-        "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
+        h1 + ("<a href=\"%s\">%s</a>" % [p[:url], p[:url]])
       end
-      
-      "<h1 class='magicitem'>#{p[:name]}</h1>" + info
     end.join("<br/>")
   end
 
   def to_power_cards
     powers.map do |p|
-      info = if (p[:url] && @ddi_webservice)
-        @ddi_webservice.get_detail_content(p[:url])
-      else
-        "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
-      end
-      
       if p[:kind] =~ /daily/i
         h1class = 'dailypower'
       elsif p[:kind] =~ /encounter/i
         h1class = 'encounterpower'
       else
         h1class = 'atwillpower'
+      end      
+      h1 = "<h1 class='#{h1class}'>#{p[:name]} <span class=smaller>(#{p[:kind]}) #{p[:stats]}</span></h1>"
+
+      if p[:name] =~ /(Melee|Ranged) Basic Attack/
+        h1
+      elsif (p[:url] && @ddi_webservice)
+        el = @ddi_webservice.get_detail(p[:url])
+        el.css('h1').first.replace( Nokogiri::HTML.fragment(h1) )
+        el.inner_html
+      else
+        h1 + "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
       end
-      
-      "<h1 class='#{h1class}'>#{p[:name]} <span class=smaller>(#{p[:kind]}) #{p[:stats]}</span></h1>" + info
     end.join("<br/>")
   end
 end

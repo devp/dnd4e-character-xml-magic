@@ -43,10 +43,10 @@ class DDIWebService
     @session.get(url).andand.parser
   end
   
-  def get_detail_content(url)
+  def get_detail(url)
     page = self.get(url)    
     return url if page.nil?
-    page.css('div#detail').andand.first.andand.inner_html.gsub('Â','')
+    page.css('div#detail').andand.first
   end
   
 end
