@@ -54,12 +54,12 @@ class DNDCharacter
       @int = doc.css('Stat [name="Intelligence"]').first.attributes['value'].value.to_i
       @wis = doc.css('Stat [name="Wisdom"]').first.attributes['value'].value.to_i
       @chr = doc.css('Stat [name="Charisma"]').first.attributes['value'].value.to_i
-      @str_mod = doc.css('Stat [name="Strength modifier"]').first.attributes['value'].value.to_i
-      @con_mod = doc.css('Stat [name="Constitution modifier"]').first.attributes['value'].value.to_i
-      @dex_mod = doc.css('Stat [name="Dexterity modifier"]').first.attributes['value'].value.to_i
-      @int_mod = doc.css('Stat [name="Intelligence modifier"]').first.attributes['value'].value.to_i
-      @wis_mod = doc.css('Stat [name="Wisdom modifier"]').first.attributes['value'].value.to_i
-      @chr_mod = doc.css('Stat [name="Charisma modifier"]').first.attributes['value'].value.to_i
+      @str_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Strength modifier/i}.first.attributes['value'].value.to_i
+      @con_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Constitution modifier/i}.first.attributes['value'].value.to_i
+      @dex_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Dexterity modifier/i}.first.attributes['value'].value.to_i
+      @int_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Intelligence modifier/i}.first.attributes['value'].value.to_i
+      @wis_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Wisdom modifier/i}.first.attributes['value'].value.to_i
+      @chr_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Charisma modifier/i}.first.attributes['value'].value.to_i
       
       #first make a list of possible skills:
       @skills = {}
@@ -78,7 +78,7 @@ class DNDCharacter
       end
       
       @magic_items = []
-      doc.css('loot[count!="0"] RulesElement[type="Magic Item"]').map{|i| 
+      doc.css('loot[count!="0"] RulesElement[type="Magic Item"]').map{|i|
         [i.attributes["name"].value, i.attributes["url"].value]
       }.uniq.each do |item|
         @magic_items << {:name => item[0], :url => item[1]}
@@ -127,7 +127,7 @@ class DNDCharacter
     <b>HP</b> #{self.hp}
     <em>Bloodied</em> #{self.hp / 2}
     <b>Surges/Day</b> #{self.surges}
-    <em>Surge Value</em> #{self.hp / 2}
+    <em>Surge Value</em> #{self.hp / 4}
     <br/>
     <b>STR</b> #{self.str} (#{mod_to_str self.str_mod})
     <b>CON</b> #{self.con} (#{mod_to_str self.con_mod})
