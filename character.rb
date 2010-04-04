@@ -175,7 +175,14 @@ class DNDCharacter
   end
 
   def to_power_cards
-    powers.map do |p|
+    powers_with_ap_and_wind = powers
+    if @job =~ /dwarf/i
+      powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Minor Action", :stats => ""}
+    else
+      powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Standard Action", :stats => ""}
+    end
+    powers_with_ap_and_wind << {:name => "Action Point", :kind => "Encounter Free Action", :stats => ""}
+    powers_with_ap_and_wind.map do |p|
       if p[:kind] =~ /daily/i
         h1class = 'dailypower'
       elsif p[:kind] =~ /encounter/i
