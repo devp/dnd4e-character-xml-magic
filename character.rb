@@ -215,7 +215,11 @@ class DNDCharacter
       h1 = "<h1 class='#{h1class}'>#{p[:name]} <span class=smaller>(#{p[:kind]}) #{p[:stats]}</span></h1>"
 
       if p[:name] =~ /(Melee|Ranged) Basic Attack/
-        h1
+        if h1 =~ /Unarmed.*1d4/
+          nil
+        else
+          h1
+        end
       elsif (p[:url] && @ddi_webservice)
         augment_psionic_power_card(make_shorter_card_html(h1, p[:url]))
       else
