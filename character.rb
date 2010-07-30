@@ -15,57 +15,58 @@ class Nokogiri::XML::Element
 end
 
 class DNDCharacter
+  attr_accessor :doc
   attr_accessor :name, :job, :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
   attr_accessor :str, :dex, :con, :wis, :int, :chr
   attr_accessor :str_mod, :dex_mod, :con_mod, :wis_mod, :int_mod, :chr_mod
   attr_accessor :magic_items, :powers, :skills, :features
   attr_accessor :ddi_webservice
-  
+    
   def initialize(fn=nil)
     if fn
-      doc = Nokogiri::XML(File.open(fn))
+      @doc = Nokogiri::XML(File.open(fn))
       @name = doc.search('name').first.content.strip
       dnd_class = doc.search('RulesElement[type="Class"]').first.attributes['name'].value
       dnd_race = doc.search('RulesElement[type="Race"]').first.attributes['name'].value
       @job = "#{dnd_race} #{dnd_class}"
-      @hp = doc.search('Stat[name="Hit Points"]').first.attributes['value'].value.to_i
-      @surges = doc.search('Stat[name="Healing Surges"]').first.attributes['value'].value.to_i
       
-      init_el = doc.search('Stat[name="Initiative"]')
-      init_el = doc.search('Stat[name="initiative"]') if init_el.empty?
-      @initiative = init_el.first.attributes['value'].value.to_i
+      @hp = get_value_as_stat_or_alias("Hit Points")
+      @surges = get_value_as_stat_or_alias("Healing Surges")
       
-      @speed = doc.search('Stat[name="Speed"]').first.attributes['value'].value.to_i
+      @initiative = get_value_as_stat_or_alias("Initiative")
+      @speed = get_value_as_stat_or_alias("Speed")
       
-      @ac = doc.search('Stat[name="AC"]').first.attributes['value'].value.to_i
-      @fortitude = doc.search('Stat[name="Fortitude Defense"]').first.attributes['value'].value.to_i
-      @reflex = doc.search('Stat[name="Reflex Defense"]').first.attributes['value'].value.to_i
-      @will = doc.search('Stat[name="Will Defense"]').first.attributes['value'].value.to_i
+      @ac = get_value_as_stat_or_alias("Armor Class")
+      @fortitude = get_value_as_stat_or_alias("Fortitude")
+      @reflex = get_value_as_stat_or_alias("Reflex")
+      @will = get_value_as_stat_or_alias("Will") 
       
-      perception_el = doc.search('Stat[name="Passive Perception"]')
-      perception_el = doc.search('Stat[name="passive Perception"]') if perception_el.empty?
-      @passive_perception = perception_el.first.attributes['value'].value.to_i
+      @passive_perception = get_value_as_stat_or_alias("Passive Perception")
+      @passive_insight = get_value_as_stat_or_alias("Passive Insight")
       
-      @passive_insight = doc.search('Stat[name="Passive Insight"]').first.attributes['value'].value.to_i
+      @str = get_value_as_stat_or_alias("Strength")
       
-      @str = doc.css('Stat [name="Strength"]').first.attributes['value'].value.to_i
-      @con = doc.css('Stat [name="Constitution"]').first.attributes['value'].value.to_i
-      @dex = doc.css('Stat [name="Dexterity"]').first.attributes['value'].value.to_i
-      @int = doc.css('Stat [name="Intelligence"]').first.attributes['value'].value.to_i
-      @wis = doc.css('Stat [name="Wisdom"]').first.attributes['value'].value.to_i
-      @chr = doc.css('Stat [name="Charisma"]').first.attributes['value'].value.to_i
-      @str_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Strength modifier/i}.first.attributes['value'].value.to_i
-      @con_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Constitution modifier/i}.first.attributes['value'].value.to_i
-      @dex_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Dexterity modifier/i}.first.attributes['value'].value.to_i
-      @int_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Intelligence modifier/i}.first.attributes['value'].value.to_i
-      @wis_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Wisdom modifier/i}.first.attributes['value'].value.to_i
-      @chr_mod = doc.css('Stat').select{|stat| stat.attributes['name'].andand.value =~ /Charisma modifier/i}.first.attributes['value'].value.to_i
+      @con = get_value_as_stat_or_alias("Constitution")
+      @dex = get_value_as_stat_or_alias("Dexterity")
+      @int = get_value_as_stat_or_alias("Intelligence")
+      @wis = get_value_as_stat_or_alias("Wisdom")
+      @chr = get_value_as_stat_or_alias("Charisma")
+      @str_mod = get_value_as_stat_or_alias("Strength modifier")
+      @con_mod = get_value_as_stat_or_alias("Constitution modifier")
+      @dex_mod = get_value_as_stat_or_alias("Dexterity modifier")
+      @int_mod = get_value_as_stat_or_alias("Intelligence modifier")
+      @wis_mod = get_value_as_stat_or_alias("Wisdom modifier")
+      @chr_mod = get_value_as_stat_or_alias("Charisma modifier")
       
       #first make a list of possible skills:
       @skills = {}
-      skill_list = doc.css('Stat').select{|el| el.attributes['name'].value =~ / Trained/}.map{|el| el.attributes['name'].value.split(" ").first}
+      skill_list = doc.css('Stat, alias').select{ |el|
+        el.attributes['name'].andand.value =~ / Trained/
+      }.map{ |el|
+        el.attributes['name'].value.split(" ").first
+      }
       skill_list.each do |skill|
-        @skills[skill] = doc.css('Stat[name="'+skill+'"]').first.attributes['value'].value.to_i
+        @skills[skill] = get_value_as_stat_or_alias(skill)
       end
       
       @features = {}
@@ -105,6 +106,14 @@ class DNDCharacter
       end
       
     end
+  end
+  
+  def get_value_as_stat_or_alias(name)
+    el = doc.search("Stat[name=\"#{name}\"]").first
+    el ||= doc.search("Stat[name=\"#{name.downcase}\"]").first
+    el ||= doc.search("alias[name=\"#{name}\"]").first.parent
+    el ||= doc.search("alias[name=\"#{name.downcase}\"]").first.parent
+    el.attributes['value'].value.to_i
   end
   
   def mod_to_str(mod)
@@ -174,14 +183,21 @@ class DNDCharacter
     end.join("<br/>")
   end
 
-  def to_power_cards
+  def to_power_cards(options={})
+    options.merge(:action_point => false, :second_wind => false)
+
     powers_with_ap_and_wind = powers
-    if @job =~ /dwarf/i
-      powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Minor Action", :stats => ""}
-    else
-      powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Standard Action", :stats => ""}
+    if options[:second_wind]
+      if @job =~ /dwarf/i
+        powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Minor Action", :stats => ""}
+      else
+        powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Standard Action", :stats => ""}
+      end
     end
-    powers_with_ap_and_wind << {:name => "Action Point", :kind => "Encounter Free Action", :stats => ""}
+    if options[:action_point]
+      powers_with_ap_and_wind << {:name => "Action Point", :kind => "Encounter Free Action", :stats => ""}
+    end
+    
     powers_with_ap_and_wind.map do |p|
       if p[:kind] =~ /daily/i
         h1class = 'dailypower'
