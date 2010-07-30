@@ -17,6 +17,7 @@ end
 class DNDCharacter
   attr_accessor :doc
   attr_accessor :name, :job, :level, :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
+  attr_accessor :power_points
   attr_accessor :str, :dex, :con, :wis, :int, :chr
   attr_accessor :str_mod, :dex_mod, :con_mod, :wis_mod, :int_mod, :chr_mod
   attr_accessor :magic_items, :powers, :skills, :features
@@ -45,8 +46,9 @@ class DNDCharacter
       @passive_perception = get_value_as_stat_or_alias("Passive Perception")
       @passive_insight = get_value_as_stat_or_alias("Passive Insight")
       
-      @str = get_value_as_stat_or_alias("Strength")
+      @power_points = get_value_as_stat_or_alias("Power Points", :force_nil_to => 0)
       
+      @str = get_value_as_stat_or_alias("Strength")
       @con = get_value_as_stat_or_alias("Constitution")
       @dex = get_value_as_stat_or_alias("Dexterity")
       @int = get_value_as_stat_or_alias("Intelligence")
@@ -109,11 +111,15 @@ class DNDCharacter
     end
   end
   
-  def get_value_as_stat_or_alias(name)
+  def get_value_as_stat_or_alias(name, options = {})
     el = doc.search("Stat[name=\"#{name}\"]").first
     el ||= doc.search("Stat[name=\"#{name.downcase}\"]").first
-    el ||= doc.search("alias[name=\"#{name}\"]").first.parent
-    el ||= doc.search("alias[name=\"#{name.downcase}\"]").first.parent
+    el ||= doc.search("alias[name=\"#{name}\"]").first.andand.parent
+    el ||= doc.search("alias[name=\"#{name.downcase}\"]").first.andand.parent
+    if el.nil? && options[:force_nil_to]
+      return options[:force_nil_to]
+    end
+    return nil unless el
     el.attributes['value'].value.to_i
   end
   
@@ -138,6 +144,7 @@ class DNDCharacter
     <em>Bloodied</em> #{self.hp / 2}
     <b>Surges/Day</b> #{self.surges}
     <em>Surge Value</em> #{self.hp / 4}
+    #{ "<b>Power Points</b> #{self.power_points}" unless self.power_points.zero? }
     <br/>
     <b>STR</b> #{self.str} (#{mod_to_str self.str_mod})
     <b>CON</b> #{self.con} (#{mod_to_str self.con_mod})
