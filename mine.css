@@ -1,0 +1,30 @@
+* {
+  font-family: Helvetica;
+  font-size: 8px;
+}
+
+h1 {
+  font-size: 14px;
+}
+
+h1.player.name {
+  font-size: 20px;
+}
+
+h1 span.smaller { font-size: 10px;}
+
+p {
+  display: inline;
+}
+
+br {
+  display: none;
+}
+
+br + b {
+  margin-left: 0.3em;
+}
+
+img[src="images/bullet.gif"] {
+  display: none;
+}

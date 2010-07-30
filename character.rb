@@ -16,7 +16,7 @@ end
 
 class DNDCharacter
   attr_accessor :doc
-  attr_accessor :name, :job, :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
+  attr_accessor :name, :job, :level, :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
   attr_accessor :str, :dex, :con, :wis, :int, :chr
   attr_accessor :str_mod, :dex_mod, :con_mod, :wis_mod, :int_mod, :chr_mod
   attr_accessor :magic_items, :powers, :skills, :features
@@ -29,6 +29,7 @@ class DNDCharacter
       dnd_class = doc.search('RulesElement[type="Class"]').first.attributes['name'].value
       dnd_race = doc.search('RulesElement[type="Race"]').first.attributes['name'].value
       @job = "#{dnd_race} #{dnd_class}"
+      @level = doc.search('Level').first.content.strip
       
       @hp = get_value_as_stat_or_alias("Hit Points")
       @surges = get_value_as_stat_or_alias("Healing Surges")
@@ -126,7 +127,7 @@ class DNDCharacter
   
   def to_character_card
     <<-CARD
-    <h1 class="player"> #{self.name} (#{self.job}) </h1>
+    <h1 class="player name"> #{self.name} <span class=smaller>(Level #{self.level} #{self.job})</span></h1>
     <p class="flavor">
     <b>Initiative</b> +#{self.initiative} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <b>Senses</b> Passive Perception #{self.passive_perception}; Passive Insight #{self.passive_insight}
@@ -174,9 +175,7 @@ class DNDCharacter
       h1 = "<h1 class='magicitem'>#{p[:name]}</h1>"
 
       if p[:url] && @ddi_webservice
-        el = @ddi_webservice.get_detail(p[:url])
-        el.css('h1').first.replace( Nokogiri::HTML.fragment(h1) )
-        el.inner_html
+        make_shorter_card_html(h1, p[:url])
       else
         h1 + ("<a href=\"%s\">%s</a>" % [p[:url], p[:url]])
       end
@@ -211,12 +210,23 @@ class DNDCharacter
       if p[:name] =~ /(Melee|Ranged) Basic Attack/
         h1
       elsif (p[:url] && @ddi_webservice)
-        el = @ddi_webservice.get_detail(p[:url])
-        el.css('h1').first.replace( Nokogiri::HTML.fragment(h1) )
-        el.inner_html
+        augment_psionic_power_card(make_shorter_card_html(h1, p[:url]))
       else
         h1 + "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
       end
     end.join("<br/>")
+  end
+  
+  def make_shorter_card_html(h1, url)
+    el = @ddi_webservice.get_detail(url)
+    el.css('h1').first.replace( Nokogiri::HTML.fragment(h1) )
+    el.css("p.flavor:first").first.andand.remove
+    el.css('p').select{|x| x.inner_html =~ /^Published/}.first.andand.remove
+    # el.css('br').each{|br| br.replace(" ")}
+    el.inner_html
+  end
+  
+  def augment_psionic_power_card(card_html)
+    card_html.gsub(/Augment ([0-9]+)/, " <b>Augment \\1</b> ")
   end
 end
