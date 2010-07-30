@@ -16,8 +16,9 @@ end
 
 class DNDCharacter
   attr_accessor :doc
-  attr_accessor :name, :job, :level, :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
-  attr_accessor :power_points
+  attr_accessor :name, :job, :level, :xp, :gp, :gear
+  attr_accessor :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
+  attr_accessor :power_points, :rituals
   attr_accessor :str, :dex, :con, :wis, :int, :chr
   attr_accessor :str_mod, :dex_mod, :con_mod, :wis_mod, :int_mod, :chr_mod
   attr_accessor :magic_items, :powers, :skills, :features
@@ -31,6 +32,8 @@ class DNDCharacter
       dnd_race = doc.search('RulesElement[type="Race"]').first.attributes['name'].value
       @job = "#{dnd_race} #{dnd_class}"
       @level = doc.search('Level').first.content.strip
+      @xp = doc.search('Experience').first.content.strip
+      @gp = doc.search('CarriedMoney').first.content.strip
       
       @hp = get_value_as_stat_or_alias("Hit Points")
       @surges = get_value_as_stat_or_alias("Healing Surges")
@@ -47,6 +50,8 @@ class DNDCharacter
       @passive_insight = get_value_as_stat_or_alias("Passive Insight")
       
       @power_points = get_value_as_stat_or_alias("Power Points", :force_nil_to => 0)
+      @rituals = doc.css('loot[count="1"] RulesElement[type="Ritual"]').map{|r| r.attributes["name"].value}.uniq
+      @gear = doc.css('loot[count="1"] RulesElement[type="Gear"]').map{|r| r.attributes["name"].value}.uniq
       
       @str = get_value_as_stat_or_alias("Strength")
       @con = get_value_as_stat_or_alias("Constitution")
@@ -89,7 +94,9 @@ class DNDCharacter
       end
       
       @powers = []
-      doc.css('Power').each do |el|
+      doc.css('Power').reject{|r|
+        r.attributes['name'].value =~ /Movement Technique/ # blah monks
+      }.each do |el|
         power_name = el.attributes['name'].value
         power_kind = el.css_clean_all('specific').join(" ")
 
@@ -133,9 +140,9 @@ class DNDCharacter
   
   def to_character_card
     <<-CARD
-    <h1 class="player name"> #{self.name} <span class=smaller>(Level #{self.level} #{self.job})</span></h1>
+    <h1 class="player name"> #{self.name} <span class=smaller>(#{self.job}; Level #{self.level})</span></h1>
     <p class="flavor">
-    <b>Initiative</b> +#{self.initiative} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <b>Initiative</b> +#{self.initiative}
     <b>Senses</b> Passive Perception #{self.passive_perception}; Passive Insight #{self.passive_insight}
     <b>Speed</b> #{self.speed}
     <br/>
@@ -144,7 +151,7 @@ class DNDCharacter
     <em>Bloodied</em> #{self.hp / 2}
     <b>Surges/Day</b> #{self.surges}
     <em>Surge Value</em> #{self.hp / 4}
-    #{ "<b>Power Points</b> #{self.power_points}" unless self.power_points.zero? }
+    #{ " <b>Power Points</b> #{self.power_points} " unless self.power_points.zero? }
     <br/>
     <b>STR</b> #{self.str} (#{mod_to_str self.str_mod})
     <b>CON</b> #{self.con} (#{mod_to_str self.con_mod})
@@ -171,7 +178,11 @@ class DNDCharacter
     <<-CARD
     <h1 class="player"> Features and Feats </h1>
     <p class="flavor">
+    <b>XP</b> #{self.xp}
+    <b>GP</b> #{self.gp}
+    #{ " <b>Gear</b> #{self.gear.join(", ")} " unless self.gear.empty? }
     #{self.features.map{|sk| "<b>%s</b> %s<br/>" % sk}.join(" ")}
+    #{ " <b>Rituals</b> #{self.rituals.join(", ")} " unless self.rituals.empty? }
     </p>
     <p></p>
     CARD
