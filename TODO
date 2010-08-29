@@ -1,0 +1,10 @@
+doc:
+  how to run scripts
+  various options:
+    to_power_cards(options={})
+      options.merge(:action_point => false, :second_wind => false, :dice_js => true)
+
+next:
+  further separate power output / templates / models
+  process monsters + items
+  build encounter sheets

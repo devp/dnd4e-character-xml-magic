@@ -212,7 +212,7 @@ class DNDCharacter
   end
 
   def to_power_cards(options={})
-    options.merge(:action_point => false, :second_wind => false, :dice_js => true)
+    options.merge!(:action_point => false, :second_wind => false, :dice_js => true)
 
     powers_with_ap_and_wind = powers    
     powers_with_ap_and_wind << Power.second_wind(:dwarf => (@job =~ /dwarf/i)) if options[:second_wind]

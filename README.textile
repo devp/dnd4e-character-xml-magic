@@ -1,6 +1,9 @@
-See the sample scripts for an example.
+INSTALL
+-------
 
-- sample_convert_all_characters.rb creates a new .html file for .dnd4e file.
-- sample_create_summary.rb creates a single page with just the summary for each character
+Requires: rubygems, andand, nokogiri, mechanize.
 
-Requires andand, nokogiri, mechanize.
+USAGE
+-----
+
+Checkout the code, and run the scripts.
