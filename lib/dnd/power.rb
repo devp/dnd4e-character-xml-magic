@@ -7,12 +7,6 @@ class Power
     end
   end
   
-  def stats_string
-    if self.attack_bonus
-      "[%s] +%s vs %s; %s %s damage" % [self.weapon_name, self.attack_bonus, self.vs_defense, self.damage_type, self.damage_type]
-    end
-  end
-  
   def self.second_wind(options = {})
     if options[:dwarf]
       Power.new(:name => "Second Wind", :kind => "Encounter Minor Action")

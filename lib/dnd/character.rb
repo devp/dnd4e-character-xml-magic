@@ -20,7 +20,7 @@ class DNDCharacter
   attr_accessor :doc
   attr_accessor :name, :job, :level, :xp, :gp, :gear
   attr_accessor :hp, :surges, :initiative, :speed, :ac, :fortitude, :reflex, :will, :passive_perception, :passive_insight
-  attr_accessor :power_points, :rituals
+  attr_accessor :power_points, :rituals, :backgrounds
   attr_accessor :str, :dex, :con, :wis, :int, :chr
   attr_accessor :str_mod, :dex_mod, :con_mod, :wis_mod, :int_mod, :chr_mod
   attr_accessor :magic_items, :powers, :skills, :features
@@ -53,7 +53,8 @@ class DNDCharacter
       
       @power_points = get_value_as_stat_or_alias("Power Points", :force_nil_to => 0)
       @rituals = doc.css('loot[count="1"] RulesElement[type="Ritual"]').map{|r| r.attributes["name"].value}.uniq
-      @gear = doc.css('loot[count="1"] RulesElement[type="Gear"]').map{|r| r.attributes["name"].value}.uniq
+      @gear = doc.css('loot[count="1"] RulesElement[type="Gear"]').map{|r| r.attributes["name"].value}.uniq  
+      @backgrounds = doc.css('RulesElement[type="Background"]').map{|r| r.attributes["name"].value}.uniq
       
       @str = get_value_as_stat_or_alias("Strength")
       @con = get_value_as_stat_or_alias("Constitution")
@@ -105,11 +106,15 @@ class DNDCharacter
 
         weapon = el.css('Weapon').sort_by{|w| w.css_clean_first('AttackBonus').to_i}.last # best weapon
         if weapon
-          power.weapon_name = weapon.attributes['name'].value
-          power.attack_bonus = weapon.css_clean_first('AttackBonus')
-          power.vs_defense = weapon.css_clean_first('Defense')
-          power.damage_roll = weapon.css_clean_first('Damage')
-          power.damage_type = weapon.css_clean_all('DamageType').join(" ")
+          unless weapon.css_clean_first('AttackStat') == 'Unknown'
+            power.weapon_name = weapon.attributes['name'].value
+            power.attack_bonus = weapon.css_clean_first('AttackBonus')
+            power.vs_defense = weapon.css_clean_first('Defense')
+          end
+          unless weapon.css_clean_first('Damage').strip == "" || weapon.css_clean_first('Damage').nil?
+            power.damage_roll = weapon.css_clean_first('Damage')
+            power.damage_type = weapon.css_clean_all('DamageType').join(" ")
+          end
         end
 
         # sometimes multiple elements exist
@@ -188,6 +193,7 @@ class DNDCharacter
     #{ " <b>Gear</b> #{self.gear.join(", ")} " unless self.gear.empty? }
     #{self.features.map{|sk| "<b>%s</b> %s<br/>" % sk}.join(" ")}
     #{ " <b>Rituals</b> #{self.rituals.join(", ")} " unless self.rituals.empty? }
+    #{ " <b>Backgrounds</b> #{self.backgrounds.join(", ")} " unless self.backgrounds.empty? }
     </p>
     <p></p>
     CARD
@@ -206,7 +212,7 @@ class DNDCharacter
   end
 
   def to_power_cards(options={})
-    options.merge(:action_point => false, :second_wind => false, :dice_js => false)
+    options.merge(:action_point => false, :second_wind => false, :dice_js => true)
 
     powers_with_ap_and_wind = powers    
     powers_with_ap_and_wind << Power.second_wind(:dwarf => (@job =~ /dwarf/i)) if options[:second_wind]
@@ -219,8 +225,17 @@ class DNDCharacter
         h1class = 'encounterpower'
       else
         h1class = 'atwillpower'
-      end      
-      h1 = "<h1 class='#{h1class}'>#{p.name} <span class=smaller>(#{p.kind}) #{p.stats_string}</span></h1>"
+      end
+      
+      power_stats = []
+      power_stats << "[%s] +%s vs %s" % [p.weapon_name, p.attack_bonus, p.vs_defense] if p.attack_bonus
+      power_stats << "%s %s damage" % [p.damage_roll, p.damage_type] if p.damage_roll
+      power_stats = power_stats.join("; ")
+      h1 = "<h1 class='#{h1class}'>#{p.name} <span class=smaller>(#{p.kind}) #{power_stats}</span></h1>"
+
+      if options[:dice_js] && p.attack_bonus
+        h1 += "<p><button onclick='attack_roll(this)' attackBonus='#{p.attack_bonus}' vsDefense = '#{p.vs_defense}' damageRoll='#{p.damage_roll}' damageType='#{p.damage_type}'><b>Roll Attack!</b></button><button onclick='attack_reset(this)'>reset</button><span class=result></span></p>"
+      end
 
       if p.name =~ /(Melee|Ranged) Basic Attack/
         if h1 =~ /Unarmed.*1d4/
