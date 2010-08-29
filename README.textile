@@ -1,9 +1,35 @@
-INSTALL
--------
+h1. ABOUT
+
+These are simple Ruby scripts for use with D&D 4th Edition, specifically the Character Builder and D&D Insider. (These services are products of Wizards of the Coast; this tool is for personal use only.)
+
+You can use these scripts to reprocess info here in whatever form you choose.
+
+h1. INSTALL
 
 Requires: rubygems, andand, nokogiri, mechanize.
 
-USAGE
------
+h1. USAGE
 
-Checkout the code, and run the scripts.
+ruby scripts/convert_all_characters.rb
+
+  Processes scripts/input/*.dnd4e and outputs scripts/output/*.html with HTML-formatted character sheets. Includes a JS die-rolling facility.
+
+ruby scripts/convert_all_characters.rb
+
+  As above, but print-friendly and without the JS.
+
+ruby scripts/create_party_summary.rb
+
+  Processes scripts/input/*.dnd4e and outputs scripts/output/dnd-party.html, with the basic stats of all your PCs.
+
+h2. Notes
+
+  The scripts assume you will be viewing the files locally in their default position. If you are uploading the files to a server, you'll need to change "path_to_includes" in the scripts so that the pages can find the contents of /includes.
+
+h1. Customzing Scripts
+
+character.to_power_cards can take in a hash of options, as demonstrated in the sample scripts. Options include:
+
+  :action_point => true # include a card for Action Point
+  :second_wind => true # include a card for Second Wind
+  :dice_js => false # disable the JS dice-rolling ability
