@@ -1,17 +1,16 @@
 BASE_DIR = "#{File.dirname(__FILE__)}/.."
 $:.unshift("#{BASE_DIR}/lib")
-
 require 'dnd'
 
 @ddi = DDIWebService.new(:user, :pass)
 @ddi.fakeout!
 
-plain_css = File.read("#{BASE_DIR}/includes/mine.css")
 template_name = "#{BASE_DIR}/templates/color-ddi.tmpl"
-tmpl = File.read(template_name).sub('STYLE', plain_css)
+path_to_includes = '../includes' # work for local viewing
+tmpl = File.read(template_name).gsub('PATH_TO_INCLUDES', path_to_includes)
+
 Dir["#{BASE_DIR}/test/*.dnd4e"].each do |fn|
   new_fn = fn.sub('.dnd4e', '.html')
-  puts "rm #{new_fn}"
   puts `rm #{new_fn}`
 
   puts "Processing: #{fn}"
