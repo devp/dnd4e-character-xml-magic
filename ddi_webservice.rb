@@ -1,10 +1,10 @@
 require 'rubygems'
 require 'andand'
 require 'nokogiri'
-require 'www/mechanize'
+require 'mechanize'
 
 # monkeypatch for old version of libxml
-class WWW::Mechanize::Util
+class Mechanize::Util
   def self.from_native_charset(s, code)
     return s unless s && code
     if Mechanize.html_parser == Nokogiri::HTML
@@ -23,7 +23,7 @@ class DDIWebService
   end
 
   def login!
-    @session = WWW::Mechanize.new
+    @session = Mechanize.new
     # url with id must be to some attempted resources in order to succeed on fake redirect
     url = "http://www.wizards.com/dndinsider/compendium/login.aspx?page=item&id=7258"
     page = @session.get(url)
