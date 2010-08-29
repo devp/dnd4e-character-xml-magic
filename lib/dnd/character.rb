@@ -231,11 +231,11 @@ class DNDCharacter
       power_stats << "[%s] +%s vs %s" % [p.weapon_name, p.attack_bonus, p.vs_defense] if p.attack_bonus
       power_stats << "%s %s damage" % [p.damage_roll, p.damage_type] if p.damage_roll
       power_stats = power_stats.join("; ")
-      h1 = "<h1 class='#{h1class}'>#{p.name} <span class=smaller>(#{p.kind}) #{power_stats}</span></h1>"
-
-      if options[:dice_js] && p.attack_bonus
-        h1 += "<p><button onclick='attack_roll(this)' attackBonus='#{p.attack_bonus}' vsDefense = '#{p.vs_defense}' damageRoll='#{p.damage_roll}' damageType='#{p.damage_type}'><b>Roll Attack!</b></button><button onclick='attack_reset(this)'>reset</button><span class=result></span></p>"
+      dice_js = if options[:dice_js] && p.attack_bonus
+        "<button onclick='attack_roll(this)' attackBonus='#{p.attack_bonus}' vsDefense = '#{p.vs_defense}' damageRoll='#{p.damage_roll}' damageType='#{p.damage_type}'><b>Roll Attack!</b></button><button onclick='attack_reset(this)'>reset</button><span class=result></span>"
       end
+
+      h1 = "<h1 class='#{h1class}'>#{p.name} <span class=smaller>(#{p.kind}) #{power_stats}</span>#{dice_js}</h1>"
 
       if p.name =~ /(Melee|Ranged) Basic Attack/
         if h1 =~ /Unarmed.*1d4/
