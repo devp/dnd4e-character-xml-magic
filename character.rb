@@ -2,6 +2,7 @@ require 'rubygems'
 require 'andand'
 require 'nokogiri'
 require 'ddi_webservice'
+require 'power'
 
 # monkey patch to save me some time here
 class Nokogiri::XML::Element
@@ -97,22 +98,25 @@ class DNDCharacter
       doc.css('Power').reject{|r|
         r.attributes['name'].value =~ /Movement Technique/ # blah monks
       }.each do |el|
-        power_name = el.attributes['name'].value
-        power_kind = el.css_clean_all('specific').join(" ")
+        power = Power.new
+        power.name = el.attributes['name'].value
+        power.kind = el.css_clean_all('specific').join(" ")
 
         weapon = el.css('Weapon').sort_by{|w| w.css_clean_first('AttackBonus').to_i}.last # best weapon
-        stats = if weapon
-          "[%s] +%s vs %s; %s %s damage" % [weapon.attributes['name'].value, weapon.css_clean_first('AttackBonus'), weapon.css_clean_first('Defense'), weapon.css_clean_first('Damage'), weapon.css_clean_all('DamageType').join(" ")]
-        else
-          nil
+        if weapon
+          power.weapon_name = weapon.attributes['name'].value
+          power.attack_bonus = weapon.css_clean_first('AttackBonus')
+          power.vs_defense = weapon.css_clean_first('Defense')
+          power.damage_roll = weapon.css_clean_first('Damage')
+          power.damage_type = weapon.css_clean_all('DamageType').join(" ")
         end
 
         # sometimes multiple elements exist
-        rules_urls = doc.css('RulesElement[name="'+power_name+'"]').map{|x| x.attributes['url'].andand.value}
+        rules_urls = doc.css('RulesElement[name="'+power.name+'"]').map{|x| x.attributes['url'].andand.value}
         rules_urls += el.css('RulesElement').map{|x| x.attributes['url'].andand.value}
-        rules_url = rules_urls.compact.uniq.first
-
-        @powers << {:name => power_name, :kind => power_kind, :url => rules_url, :stats => stats}
+        power.url = rules_urls.compact.uniq.first
+        
+        @powers << power
       end
       
     end
@@ -201,40 +205,32 @@ class DNDCharacter
   end
 
   def to_power_cards(options={})
-    options.merge(:action_point => false, :second_wind => false)
+    options.merge(:action_point => false, :second_wind => false, :dice_js => false)
 
-    powers_with_ap_and_wind = powers
-    if options[:second_wind]
-      if @job =~ /dwarf/i
-        powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Minor Action", :stats => ""}
-      else
-        powers_with_ap_and_wind << {:name => "Second Wind", :kind => "Encounter Standard Action", :stats => ""}
-      end
-    end
-    if options[:action_point]
-      powers_with_ap_and_wind << {:name => "Action Point", :kind => "Encounter Free Action", :stats => ""}
-    end
+    powers_with_ap_and_wind = powers    
+    powers_with_ap_and_wind << Power.second_wind(:dwarf => (@job =~ /dwarf/i)) if options[:second_wind]
+    powers_with_ap_and_wind << Power.action_point if options[:action_point]
     
     powers_with_ap_and_wind.map do |p|
-      if p[:kind] =~ /daily/i
+      if p.kind =~ /daily/i
         h1class = 'dailypower'
-      elsif p[:kind] =~ /encounter/i
+      elsif p.kind =~ /encounter/i
         h1class = 'encounterpower'
       else
         h1class = 'atwillpower'
       end      
-      h1 = "<h1 class='#{h1class}'>#{p[:name]} <span class=smaller>(#{p[:kind]}) #{p[:stats]}</span></h1>"
+      h1 = "<h1 class='#{h1class}'>#{p.name} <span class=smaller>(#{p.kind}) #{p.stats_string}</span></h1>"
 
-      if p[:name] =~ /(Melee|Ranged) Basic Attack/
+      if p.name =~ /(Melee|Ranged) Basic Attack/
         if h1 =~ /Unarmed.*1d4/
           nil
         else
           h1
         end
-      elsif (p[:url] && @ddi_webservice)
-        augment_psionic_power_card(make_shorter_card_html(h1, p[:url]))
+      elsif (p.url && @ddi_webservice)
+        augment_psionic_power_card(make_shorter_card_html(h1, p.url))
       else
-        h1 + "<a href=\"%s\">%s</a>" % [p[:url], p[:url]]
+        h1 + "<a href=\"%s\">%s</a>" % [p.url, p.url]
       end
     end.join("<br/>")
   end
