@@ -1,0 +1,9 @@
+/* removing linebreaks for smaller output */
+
+p {
+  display: inline;
+}
+
+br {
+  display: none;
+}

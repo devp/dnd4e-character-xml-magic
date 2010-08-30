@@ -13,14 +13,6 @@ h1.player.name {
 
 h1 span.smaller { font-size: 10px;}
 
-p {
-  display: inline;
-}
-
-br {
-  display: none;
-}
-
 br + b {
   margin-left: 0.3em;
 }
