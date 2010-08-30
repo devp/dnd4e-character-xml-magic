@@ -3,7 +3,7 @@ function get_targets() {
 }
 
 function attack_reset(button) {
-  $(button).next('span.result').html("");
+  $(button).next('textarea.result').html("").hide();
 }
 
 function attack_roll(button) {
@@ -20,11 +20,14 @@ function attack_roll(button) {
     results.push( "for " + resultStr(roll($(button).attr("damageRoll"))) + " " + $(button).attr("damageType") + " damage" );    
   }
 
-  $(button).parent().children("span.result").html(
-    "<ul><li>" + results.join("</li><li>") + "</li></ul>"
-  );
+  $(button).parent().children("textarea.result").html(
+    results.join("\n")
+  ).show().attr("rows", results.length);
 }
 
 $(document).ready(function(){
-  
+  $("textarea.result").hide().click(function(x){
+    this.focus();
+    this.select();
+  });
 });

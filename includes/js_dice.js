@@ -44,7 +44,7 @@
         return {"res":res, "type":type};
     }
     
-    function resultStr(data)
+    function resultStr_html(data)
     {
         var total = 0;
         var str = "";
@@ -59,3 +59,21 @@
         str = "<strong>" + total + "</strong>" + (str?"&nbsp;=&nbsp;" + str:'');
         return str;
     }
+
+    function resultStr_text(data)
+    {
+        var total = 0;
+        var str = "";
+        for (var i=0; i<data.res.length; i++) {
+            total = total + data.res[i];
+            if (data.res.length>1) {
+                if (i) str = str + ((data.res[i])>=0?"+":"-");
+                str = str + Math.abs(data.res[i]);
+                if (data.type[i]) str = str + "[d"+data.type[i]+"]";
+            }
+        }
+        str = total + (str ? (" <= " + str) : '');
+        return str;
+    }
+    
+    resultStr = resultStr_text;

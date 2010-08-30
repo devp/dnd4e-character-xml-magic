@@ -1,0 +1,5 @@
+/* custom for die roll javascript */
+textarea.result { 
+  height: auto !important;
+  width:  200px;
+}
