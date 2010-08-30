@@ -62,12 +62,12 @@ class DNDCharacter
       @int = get_value_as_stat_or_alias("Intelligence")
       @wis = get_value_as_stat_or_alias("Wisdom")
       @chr = get_value_as_stat_or_alias("Charisma")
-      @str_mod = get_value_as_stat_or_alias("Strength modifier")
-      @con_mod = get_value_as_stat_or_alias("Constitution modifier")
-      @dex_mod = get_value_as_stat_or_alias("Dexterity modifier")
-      @int_mod = get_value_as_stat_or_alias("Intelligence modifier")
-      @wis_mod = get_value_as_stat_or_alias("Wisdom modifier")
-      @chr_mod = get_value_as_stat_or_alias("Charisma modifier")
+      @str_mod = get_value_as_stat_or_alias(["Strength modifier", "Strength Modifier"])
+      @con_mod = get_value_as_stat_or_alias(["Constitution modifier", "Constitution Modifier"])
+      @dex_mod = get_value_as_stat_or_alias(["Dexterity modifier", "Dexterity Modifier"])
+      @int_mod = get_value_as_stat_or_alias(["Intelligence modifier", "Intelligence Modifier"])
+      @wis_mod = get_value_as_stat_or_alias(["Wisdom modifier", "Wisdom Modifier"])
+      @chr_mod = get_value_as_stat_or_alias(["Charisma modifier", "Charisma Modifier"])
       
       #first make a list of possible skills:
       @skills = {}
@@ -128,11 +128,18 @@ class DNDCharacter
     end
   end
   
-  def get_value_as_stat_or_alias(name, options = {})
-    el = doc.search("Stat[name=\"#{name}\"]").first
-    el ||= doc.search("Stat[name=\"#{name.downcase}\"]").first
-    el ||= doc.search("alias[name=\"#{name}\"]").first.andand.parent
-    el ||= doc.search("alias[name=\"#{name.downcase}\"]").first.andand.parent
+  def get_value_as_stat_or_alias(names, options = {})
+    unless names.is_a?(Array)
+      names = [names]
+    end
+
+    el = nil
+    names.each do |name|
+      el ||= doc.search("Stat[name=\"#{name}\"]").first
+      el ||= doc.search("Stat[name=\"#{name.downcase}\"]").first
+      el ||= doc.search("alias[name=\"#{name}\"]").first.andand.parent
+      el ||= doc.search("alias[name=\"#{name.downcase}\"]").first.andand.parent
+    end
     if el.nil? && options[:force_nil_to]
       return options[:force_nil_to]
     end
