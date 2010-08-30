@@ -1,5 +1,4 @@
 next:
-  script to output character for input into MapTool
   process page to find hidden die rolls in descriptions
   separate color-ddi and color-ddi-dynamic?
   further separate power output / templates / models
