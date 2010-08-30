@@ -1,7 +1,7 @@
 next:
   script to output character for input into MapTool
-  add simple generic dice roll ability
   process page to find hidden die rolls in descriptions
+  separate color-ddi and color-ddi-dynamic?
   further separate power output / templates / models
   process monsters + items
   build encounter sheets

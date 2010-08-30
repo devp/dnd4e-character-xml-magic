@@ -75,5 +75,10 @@
         str = total + (str ? (" <= " + str) : '');
         return str;
     }
-    
+        
     resultStr = resultStr_text;
+    
+    function d(n) {
+      dx = "d" + n;
+      alert(dx + " => " + resultStr(roll(dx)));
+    }

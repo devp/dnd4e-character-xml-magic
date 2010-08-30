@@ -3,3 +3,18 @@ textarea.result {
   height: auto !important;
   width:  200px;
 }
+
+/* for my dice buttons */
+
+#dice {
+/*  position: fixed;*/
+  width: 95%;
+  text-align: right;
+  margin-top: 1em;
+}
+
+#dice button {
+  font-family: Futura, Verdana, "Sans Serif";
+  width: 5%;
+  height: 3em;
+}
