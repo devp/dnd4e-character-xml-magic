@@ -1,5 +1,6 @@
 class Power
   attr_accessor :name, :kind, :url, :weapon_name, :attack_bonus, :vs_defense, :damage_roll, :damage_type
+  attr_accessor :description
   
   def initialize(h={})
     [:name, :kind, :url, :weapon_name, :attack_bonus, :vs_defense, :damage_roll, :damage_type].each do |sym|      

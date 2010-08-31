@@ -2,11 +2,9 @@ require 'rubygems'
 require 'andand'
 require 'nokogiri'
 
-require 'dnd/ddi_webservice'
-require 'dnd/power'
-
 # monkey patch to save me some time here
-class Nokogiri::XML::Element
+# FIXME: this is mean and wrong
+class ::Nokogiri::XML::Element
   def css_clean_first(selector)
     css(selector).andand.first.andand.content.andand.strip
   end
@@ -15,6 +13,9 @@ class Nokogiri::XML::Element
     css(selector).map{|x| x.andand.content.andand.strip}
   end
 end
+
+require 'dnd/ddi_webservice'
+require 'dnd/power'
 
 class DNDCharacter
   attr_accessor :doc
