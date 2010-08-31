@@ -1,6 +1,10 @@
 next:
-  process page to find hidden die rolls in descriptions
+  process monsters: further
+    html output with JS?
+    read from DDI?
+    create encounter-sheet?
+  build encounter sheets
+    process items, traps, glossary
   separate color-ddi and color-ddi-dynamic?
   further separate power output / templates / models
-  process monsters + items
-  build encounter sheets
+  process descritions to find hidden die rolls (?)

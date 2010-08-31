@@ -47,4 +47,32 @@ class DNDMonster
       end
     end
   end
+  
+  def to_html
+    <<-CARD
+    <h1 class="monster"> #{self.name} <span class=smaller>(#{self.kind})</span></h1>
+    #{self.stats}
+    #{self.extra_stats}
+    #{self.to_powers_html}
+    CARD
+  end
+  
+  def to_powers_html
+    self.powers.map do |p|
+      <<-POWER
+      <p class="flavor">
+        <b>#{p.name} #{p.kind}</b>
+        <br/>
+        <span>
+        #{p.description}
+        </span>
+        <br/>
+        <span>
+        #{p.attack_bonus && "+#{p.attack_bonus}#{p.vs_defense ? " vs #{p.vs_defense}" : nil}"}
+        #{p.damage_roll && "#{p.damage_roll}#{p.damage_type ? " #{p.damage_type}" : nil} damage"}
+        </span>
+      </p>
+      POWER
+    end.join("\n")
+  end
 end

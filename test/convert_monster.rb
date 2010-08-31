@@ -4,6 +4,10 @@ require 'dnd'
 
 # experimentation for now
 
+template_name = "#{BASE_DIR}/templates/color-ddi.tmpl"
+path_to_includes = '../includes' # works for local viewing
+tmpl = File.read(template_name).gsub('PATH_TO_INCLUDES', path_to_includes)
+
 Dir["#{BASE_DIR}/test/*.monster"].each do |fn|
 
   puts "Processing #{fn}"
@@ -18,14 +22,22 @@ Dir["#{BASE_DIR}/test/*.monster"].each do |fn|
   puts monster.stats
   puts monster.extra_stats
   
-  monster.powers.each do |p|
-    puts p.name
-    puts "  #{p.description}"
-    puts "  +#{p.attack_bonus}#{p.vs_defense ? " vs #{p.vs_defense}" : nil}" if p.attack_bonus
-    puts "  #{p.damage_roll}#{p.damage_type ? " #{p.damage_type}" : nil} damage" if p.damage_roll
-  end
-
-  puts "=========="
+  # monster.powers.each do |p|
+  #   puts p.name
+  #   puts "  #{p.description}"
+  #   puts "  +#{p.attack_bonus}#{p.vs_defense ? " vs #{p.vs_defense}" : nil}" if p.attack_bonus
+  #   puts "  #{p.damage_roll}#{p.damage_type ? " #{p.damage_type}" : nil} damage" if p.damage_roll
+  # end
+  # 
+  # puts "=========="
+  
+  # create html
+  
+  str = monster.to_html
+  str = tmpl.sub('CONTENT', str)
+  new_fn = fn.sub('.monster', '.monster.html')
+  File.open(new_fn, 'w'){|f| f << str}
+  puts "Output: #{new_fn}"
   
   # create csv
   

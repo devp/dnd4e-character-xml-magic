@@ -1,0 +1,21 @@
+ 
+ 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+ 
+<html xmlns="http://www.w3.org/1999/xhtml" > 
+<head><title> 
+	Irontooth
+</title><link href="styles/detail.css" media="screen" rel="stylesheet" type="text/css" /><link href="styles/print.css" media="print" rel="stylesheet" type="text/css" /></head> 
+<body> 
+    <form name="form1" method="post" action="monster.aspx?id=784" id="form1"> 
+<div> 
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUKLTY4MDc0NjM4OGRkmKnWmSrm3o5D7rOICPgvcXblGpJM2BcPQVXnvIcJF3A=" /> 
+</div> 
+ 
+    <div id="detail"> 
+		
+		<h1 class="monster">Irontooth<br/><span class="type">Small  natural humanoid, goblin</span><br/><span class="level">Level 3 Elite Brute<span class="xp"> XP 300</span></span> </h1> <p class="flavor"><b>Initiative</b> +2 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Senses</b> Perception +4; low-light vision<br/><b>HP</b> 106; <b>Bloodied</b> 53<br/><b>AC</b> 18; <b>Fortitude</b> 18, <b>Reflex</b> 16, <b>Will</b> 17<br/><b>Saving Throws</b> +2<br/><b>Speed</b> 6<br/><b>Action Points</b> 1</p><p class="flavor alt"><img src="http://www.wizards.com/dnd/images/symbol/S2.gif" /> <b>Battleaxe</b> (standard, at-will) <img src="http://www.wizards.com/dnd/images/symbol/x.gif" /> <b>Weapon</b></p><p class="flavorIndent">+8 vs AC; 1d8+4 damage. </p><p class="flavor alt"><img src="http://www.wizards.com/dnd/images/symbol/Z2a.gif" /> <b>Dual Axe</b> (standard, when irontooth doesn't move on his turn, at-will) </p><p class="flavorIndent">+1 vs  or  (whichever is lower); . Make a basic melee attack against two adjacent creatures.</p><p class="flavor alt"> <b>Goblin Tactics</b> (immediate reaction, when missed by a melee attack; at-will) </p><p class="flavorIndent">Irontooth can shift 1 square.</p><p class="flavor alt"> <b>Blood Crazed</b> (while bloodied) <img src="http://www.wizards.com/dnd/images/symbol/x.gif" /> <b>Healing</b></p><p class="flavorIndent">While bloodied, Irontooth gains +1d10 damage and loses the ability to use goblin tactics. He must attack the nearest foe, charging when possible. At the end of his turn, he heals 5hp.</p><p class="flavor alt"><b>Alignment</b> Evil&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b> Languages</b> Common, Goblin, Draconic<br/><b>Str</b> 18 (+5)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Dex</b> 14 (+3)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Wis</b> 16 (+4)<br/><b>Con</b> 13 (+2)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Int</b> 8 (0)  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Cha</b> 12 (+2)</p><br/><p><i>Published in <a target="_new" href="http://www.wizards.com/default.asp?x=products/dndacc/217187400">H1 Keep on the Shadowfell</a>.</i></p> 
+    </div> 
+    </form> 
+</body> 
+</html>
